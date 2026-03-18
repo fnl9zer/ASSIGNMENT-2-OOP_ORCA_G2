@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36109.1 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPACESHOOTER_ORCA", "SPACESHOOTER_ORCA.csproj", "{79D4D004-7194-4E58-B446-61AF0E54BD71}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{79D4D004-7194-4E58-B446-61AF0E54BD71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79D4D004-7194-4E58-B446-61AF0E54BD71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79D4D004-7194-4E58-B446-61AF0E54BD71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79D4D004-7194-4E58-B446-61AF0E54BD71}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1E990C93-6245-4A79-89DE-4A1BDA1C55B7}
+	EndGlobalSection
+EndGlobal
