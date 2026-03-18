@@ -57,9 +57,9 @@
             // Player
             // 
             this.Player.Image = ((System.Drawing.Image)(resources.GetObject("Player.Image")));
-            this.Player.Location = new System.Drawing.Point(260, 391);
+            this.Player.Location = new System.Drawing.Point(233, 346);
             this.Player.Name = "Player";
-            this.Player.Size = new System.Drawing.Size(55, 50);
+            this.Player.Size = new System.Drawing.Size(96, 95);
             this.Player.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.Player.TabIndex = 0;
             this.Player.TabStop = false;
