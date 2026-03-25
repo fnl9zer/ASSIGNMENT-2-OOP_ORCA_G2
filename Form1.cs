@@ -88,15 +88,24 @@ namespace SPACESHOOTER_ORCA
             Image enemy1 = Image.FromFile("assets\\E1.png");
             Image enemy2 = Image.FromFile("assets\\E2.png");
             Image enemy3 = Image.FromFile("assets\\E3.png");
-            Image boss1 = Image.FromFile("assets\\Boss1.png");
-            Image boss2 = Image.FromFile("assets\\Boss2.png");
+            Image boss1 = Image.FromFile("assets\\TIE fighter.png");
+            Image boss2 = Image.FromFile("assets\\TIE fighter 2.png");
 
             enemies = new PictureBox[10];
 
             for (int i = 0; i < enemies.Length; i++)
             {
                 enemies[i] = new PictureBox();
-                enemies[i].Size = new Size(40, 40);
+
+                if (i == 0 || i == 9) 
+                {
+                    enemies[i].Size = new Size(60, 60);  // Boss size
+                }
+                else
+                {
+                    enemies[i].Size = new Size(40, 40);  // Regular enemy size
+                }
+
                 enemies[i].SizeMode = PictureBoxSizeMode.Zoom;
                 enemies[i].BorderStyle = BorderStyle.None;
                 enemies[i].Visible = false;
