@@ -132,7 +132,7 @@ namespace SPACESHOOTER_ORCA
             this.speed = speed;
             this.collisionDamage = (type == "flaming") ? 60 : 30;
         }
-
+        
         public void Collide(Player player)
         {
             player.TakeDamage(collisionDamage);

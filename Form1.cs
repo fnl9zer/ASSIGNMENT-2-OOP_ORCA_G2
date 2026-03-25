@@ -453,10 +453,16 @@ namespace SPACESHOOTER_ORCA
         {
             gameOver = true;
             lbl1.Text = str;
-            lbl1.Location = new Point(120, 120);
+
+            lbl1.AutoSize = true;
+            lbl1.Location = new Point((this.Width - lbl1.Width) / 2, (this.Height - lbl1.Height) / 2 - 80);
+
             lbl1.Visible = true;
             ReplayBtn.Visible = true;
             ExitBtn.Visible = true;
+
+            ReplayBtn.Location = new Point((this.Width - ReplayBtn.Width) / 2, (this.Height / 2) + 20);
+            ExitBtn.Location = new Point((this.Width - ExitBtn.Width) / 2, (this.Height / 2) + 70);
 
             gameMedia.controls.stop();
             StopTimer();
