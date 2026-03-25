@@ -6,7 +6,6 @@ A 2D arcade space shooter built with C# Windows Forms.
 - Player movement and shooting
 - Enemy waves with increasing difficulty
 - Obstacle (basic and flaming meteors)
-=======
 - Obstacle system (basic and flaming meteors)
 - Health and lives system (3 hearts)
 - Score and level tracking
