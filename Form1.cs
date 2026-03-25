@@ -80,16 +80,16 @@ namespace SPACESHOOTER_ORCA
             attacks = new PictureBox[3];
 
             //load images
-            Image munition = Image.FromFile(@"asserts\munition.png");
-            Image heartImg = Image.FromFile(@"asserts\heart.png");
-            Image meteor = Image.FromFile(@"asserts\meteor.png");
-            Image flamingMeteor = Image.FromFile(@"asserts\flaming_meteor.png");
+            Image munition = Image.FromFile(@"assets\munition.png");
+            Image heartImg = Image.FromFile(@"assets\heart.png");
+            Image meteor = Image.FromFile(@"assets\meteor.png");
+            Image flamingMeteor = Image.FromFile(@"assets\flaming_meteor.png");
 
-            Image enemy1 = Image.FromFile("asserts\\E1.png");
-            Image enemy2 = Image.FromFile("asserts\\E2.png");
-            Image enemy3 = Image.FromFile("asserts\\E3.png");
-            Image boss1 = Image.FromFile("asserts\\Boss1.png");
-            Image boss2 = Image.FromFile("asserts\\Boss2.png");
+            Image enemy1 = Image.FromFile("assets\\E1.png");
+            Image enemy2 = Image.FromFile("assets\\E2.png");
+            Image enemy3 = Image.FromFile("assets\\E3.png");
+            Image boss1 = Image.FromFile("assets\\Boss1.png");
+            Image boss2 = Image.FromFile("assets\\Boss2.png");
 
             enemies = new PictureBox[10];
 

@@ -2,20 +2,31 @@
 
 namespace SPACESHOOTER_ORCA
 {
-    public class Player
+    // Defines understanding for objects that can take damage
+    public interface IDamageable
     {
+        void TakeDamage(int damage);
+        bool IsDestroyed();
+    }
+
+    // Player class
+    public class Player : IDamageable
+    {
+        // Encapsulation: Private fields
         private int health;
         private int maxHealth;
         private int lives;
         private int score;
         private int speed;
 
+        // Encapsulation: Public properties provide controlled access
         public int Health { get { return health; } set { health = value; } }
         public int MaxHealth { get { return maxHealth; } set { maxHealth = value; } }
         public int Lives { get { return lives; } set { lives = value; } }
         public int Score { get { return score; } set { score = value; } }
         public int Speed { get { return speed; } set { speed = value; } }
 
+        // Constructor
         public Player(int health, int maxHealth, int lives, int speed)
         {
             this.health = health;
@@ -57,13 +68,17 @@ namespace SPACESHOOTER_ORCA
             return lives <= 0;
         }
     }
+
+    // Enemy class
     public class Enemy
     {
+        // Encapsulation: Private fields
         private int damage;
         private int speed;
         private string type;
         private int pointsAwarded;
 
+        // Encapsulation: Public properties
         public int Damage { get { return damage; } set { damage = value; } }
         public int Speed { get { return speed; } set { speed = value; } }
         public string Type { get { return type; } set { type = value; } }
@@ -77,6 +92,7 @@ namespace SPACESHOOTER_ORCA
             this.pointsAwarded = pointsAwarded;
         }
 
+        // Polymorphism: Different enemies can have different attack behaviors
         public void Attack(Player player)
         {
             player.TakeDamage(damage);
@@ -93,14 +109,17 @@ namespace SPACESHOOTER_ORCA
         }
     }
 
+    // Obstacle class
     public class Obstacle
     {
+        // Encapsulation: Private fields
         private string type;
         private int collisionDamage;
         private int speed;
         private int positionX;
         private int positionY;
 
+        // Encapsulation: Public properties
         public string Type { get { return type; } set { type = value; } }
         public int CollisionDamage { get { return collisionDamage; } set { collisionDamage = value; } }
         public int Speed { get { return speed; } set { speed = value; } }
