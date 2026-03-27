@@ -46,6 +46,12 @@ namespace SPACESHOOTER_ORCA
         int playerLives;
         PictureBox[] hearts;
 
+        int hitCount;
+        int hitsToLoseLife;
+
+        bool isInvincible;
+        int invincibleTimer;
+
         public Form1()
         {
             InitializeComponent();
@@ -63,6 +69,9 @@ namespace SPACESHOOTER_ORCA
             playerMaxHealth = 100;
             playerLives = 3;
 
+            hitCount = 0;
+            hitsToLoseLife = 3;
+
             ReplayBtn.Visible = false;
             ExitBtn.Visible = false;
             lbl1.Visible = false;
@@ -76,6 +85,9 @@ namespace SPACESHOOTER_ORCA
             attackSpeed = 20;
             enemiesAttacksSpeed = 4;
             obstacleSpeed = 3;
+
+            isInvincible = false;
+            invincibleTimer = 0;
 
             attacks = new PictureBox[3];
 
@@ -215,41 +227,46 @@ namespace SPACESHOOTER_ORCA
                 enemiesAttacks[i].BackColor = Color.Yellow;
                 int x = rand.Next(0, 10);
                 enemiesAttacks[i].Location = new Point(enemies[x].Location.X, enemies[x].Location.Y - 20);
+                // tag as boss or basic based on which enemy fires it
+                enemiesAttacks[i].Tag = (x == 0 || x == 9) ? "boss" : "basic";
                 this.Controls.Add(enemiesAttacks[i]);
             }
 
             gameMedia.controls.play();
         }
 
-        private void TakeDamage(int damage)
+        private void TakeDamage(int hitsRequired)
         {
-            playerHealth -= damage;
+            if (isInvincible)
+            {
+                System.Diagnostics.Debug.WriteLine("Damage ignored - invincible");
+                return;
+            }
 
-            if (playerHealth > 66)
+            hitCount++;
+            System.Diagnostics.Debug.WriteLine($"Hit! Current hitCount: {hitCount}, Required: {hitsRequired}");
+
+            if (hitCount >= hitsRequired)
             {
-                hearts[0].Visible = true;
-                hearts[1].Visible = true;
-                hearts[2].Visible = true;
-            }
-            else if (playerHealth > 33)
-            {
-                hearts[2].Visible = false;
-                hearts[1].Visible = true;
-                hearts[0].Visible = true;
-            }
-            else if (playerHealth > 0)
-            {
-                hearts[2].Visible = false;
-                hearts[1].Visible = false;
-                hearts[0].Visible = true;
-            }
-            else
-            {
-                hearts[2].Visible = false;
-                hearts[1].Visible = false;
-                hearts[0].Visible = false;
-                Player.Visible = false;
-                GameOver("Game Over");
+                System.Diagnostics.Debug.WriteLine("Losing a life!");
+                hitCount = 0;
+                playerLives -= 1;
+
+                if (playerLives == 2) hearts[2].Visible = false;
+                else if (playerLives == 1) hearts[1].Visible = false;
+                else if (playerLives <= 0) hearts[0].Visible = false;
+
+                if (playerLives <= 0)
+                {
+                    Player.Visible = false;
+                    GameOver("Game Over");
+                }
+                else
+                {
+                    isInvincible = true;
+                    InvincibleTimer.Start();
+                    System.Diagnostics.Debug.WriteLine("Invincibility started");
+                }
             }
         }
 
@@ -412,12 +429,37 @@ namespace SPACESHOOTER_ORCA
                     enemies[i].Location = new Point((i + 1) * 50, -100);
                 }
 
+                // direct enemy collision = instant lose life
                 if (Player.Bounds.IntersectsWith(enemies[i].Bounds))
                 {
                     explosion.settings.volume = 30;
                     explosion.controls.play();
-                    TakeDamage(100);
+                    LoseLife();
+                    enemies[i].Location = new Point((i + 1) * 50, -100);
                 }
+            }
+        }
+
+        private void LoseLife()
+        {
+            if (isInvincible) return;
+
+            playerLives -= 1;
+
+            if (playerLives == 2) hearts[2].Visible = false;
+            else if (playerLives == 1) hearts[1].Visible = false;
+            else if (playerLives <= 0) hearts[0].Visible = false;
+
+            if (playerLives <= 0)
+            {
+                Player.Visible = false;
+                GameOver("Game Over");
+            }
+            else
+            {
+                // Start invincibility after losing a life
+                isInvincible = true;
+                InvincibleTimer.Start();
             }
         }
 
@@ -440,9 +482,9 @@ namespace SPACESHOOTER_ORCA
                     obstacles[i].Location = new Point(rand.Next(20, 560), rand.Next(-300, -30));
 
                     if (obstacles[i].Tag.ToString() == "flaming")
-                        TakeDamage(60);
+                        TakeDamage(2);
                     else
-                        TakeDamage(30);
+                        TakeDamage(3);
                 }
 
                 for (int j = 0; j < attacks.Length; j++)
@@ -516,14 +558,55 @@ namespace SPACESHOOTER_ORCA
 
         private void CollisionWithEnemiesAttacks()
         {
+            bool hasHitThisFrame = false;
+
             for (int i = 0; i < enemiesAttacks.Length; i++)
             {
                 if (enemiesAttacks[i].Bounds.IntersectsWith(Player.Bounds))
                 {
+                    // Hide the bullet
                     enemiesAttacks[i].Visible = false;
-                    explosion.settings.volume = 30;
-                    explosion.controls.play();
-                    TakeDamage(100);
+                    enemiesAttacks[i].Location = new Point(-100, -100);
+
+                    // Only process ONE bullet per frame
+                    if (!hasHitThisFrame && !isInvincible)
+                    {
+                        explosion.settings.volume = 30;
+                        explosion.controls.play();
+
+                        // Increment hit counter
+                        hitCount++;
+                        System.Diagnostics.Debug.WriteLine($"Hit! Current hitCount: {hitCount}");
+
+                        // Determine how many hits needed
+                        int hitsNeeded = (enemiesAttacks[i].Tag != null && enemiesAttacks[i].Tag.ToString() == "boss") ? 2 : 3;
+
+                        if (hitCount >= hitsNeeded)
+                        {
+                            System.Diagnostics.Debug.WriteLine("Losing a life!");
+                            hitCount = 0;
+                            playerLives--;
+
+                            // Update hearts
+                            if (playerLives == 2) hearts[2].Visible = false;
+                            else if (playerLives == 1) hearts[1].Visible = false;
+                            else if (playerLives <= 0) hearts[0].Visible = false;
+
+                            if (playerLives <= 0)
+                            {
+                                Player.Visible = false;
+                                GameOver("Game Over");
+                            }
+                            else
+                            {
+                                isInvincible = true;
+                                InvincibleTimer.Start();
+                                System.Diagnostics.Debug.WriteLine("Invincibility started");
+                            }
+                        }
+
+                        hasHitThisFrame = true;
+                    }
                 }
             }
         }
@@ -538,6 +621,12 @@ namespace SPACESHOOTER_ORCA
             Form1 newGame = new Form1();
             newGame.Show();
             this.Close();
+        }
+
+        private void InvincibleTimer_Tick(object sender, EventArgs e)
+        {
+            isInvincible = false;
+            InvincibleTimer.Stop();
         }
     }
 }

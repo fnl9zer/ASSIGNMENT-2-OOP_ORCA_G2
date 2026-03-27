@@ -45,6 +45,7 @@
             this.scorelbl = new System.Windows.Forms.Label();
             this.levellbl = new System.Windows.Forms.Label();
             this.MoveObstaclesTimer = new System.Windows.Forms.Timer(this.components);
+            this.InvincibleTimer = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.Player)).BeginInit();
             this.SuspendLayout();
             // 
@@ -166,6 +167,11 @@
             this.MoveObstaclesTimer.Interval = 20;
             this.MoveObstaclesTimer.Tick += new System.EventHandler(this.MoveObstaclesTimer_Tick);
             // 
+            // InvincibleTimer
+            // 
+            this.InvincibleTimer.Interval = 1000;
+            this.InvincibleTimer.Tick += new System.EventHandler(this.InvincibleTimer_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
@@ -211,6 +217,7 @@
         private System.Windows.Forms.Label scorelbl;
         private System.Windows.Forms.Label levellbl;
         private System.Windows.Forms.Timer MoveObstaclesTimer;
+        private System.Windows.Forms.Timer InvincibleTimer;
     }
 }
 
