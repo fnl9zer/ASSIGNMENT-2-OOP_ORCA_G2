@@ -1,4 +1,4 @@
-# [Project Title]
+# SPACESHOOTER by Orca (G2)
 
 ## Group Members
 | Name | Student ID |
