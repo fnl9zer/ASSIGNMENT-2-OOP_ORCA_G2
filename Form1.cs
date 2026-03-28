@@ -35,6 +35,9 @@ namespace SPACESHOOTER_ORCA
         int backgroundSpeed;
         Random rand;
 
+        PictureBox background;
+        Image[] bgImages;
+
         int score;
         int level;
         int dificulty;
@@ -90,6 +93,14 @@ namespace SPACESHOOTER_ORCA
             invincibleTimer = 0;
 
             attacks = new PictureBox[3];
+
+            //load background images
+            bgImages = new Image[5];
+            bgImages[0] = Image.FromFile(@"assets\L1.png");
+            bgImages[1] = Image.FromFile(@"assets\L2.png");
+            bgImages[2] = Image.FromFile(@"assets\L3.png");
+            bgImages[3] = Image.FromFile(@"assets\L4.png");
+            bgImages[4] = Image.FromFile(@"assets\L5.png");
 
             //load images
             Image munition = Image.FromFile(@"assets\munition.png");
@@ -411,7 +422,10 @@ namespace SPACESHOOTER_ORCA
                     score += 1;
                     scorelbl.Text = "Score: " + (score < 10 ? "0" + score.ToString() : score.ToString());
 
-                    if (score % 30 == 0)
+                    // score threshold increases each level
+                    int[] levelThresholds = { 20, 45, 75, 110 };
+
+                    if (level <= 4 && score >= levelThresholds[level - 1])
                     {
                         level += 1;
                         levellbl.Text = "Level: " + level.ToString();
@@ -423,7 +437,7 @@ namespace SPACESHOOTER_ORCA
                             enemiesAttacksSpeed++;
                         }
 
-                        if (level == 10)
+                        if (level == 5)
                             GameOver("CONGRATULATIONS!");
                     }
                     enemies[i].Location = new Point((i + 1) * 50, -100);
