@@ -63,6 +63,16 @@ namespace SPACESHOOTER_ORCA
         bool rapidFire;
         int normalAttackSpeed;
 
+        //final boss
+        PictureBox finalBoss;
+        PictureBox bossHealthBar;
+        PictureBox bossHealthFill;
+        int bossHealth;
+        int bossMaxHealth;
+        bool bossActive;
+        bool bossMovingRight;
+        int bossAttackCounter;
+
         public Form1()
         {
             InitializeComponent();
@@ -122,10 +132,42 @@ namespace SPACESHOOTER_ORCA
             Image boss1 = Image.FromFile("assets\\TIE fighter.png");
             Image boss2 = Image.FromFile("assets\\TIE fighter 2.png");
 
+            Image deathStar = Image.FromFile(@"assets\death star.png");
+
             powerUpImages = new Image[3];
             powerUpImages[0] = Image.FromFile(@"assets\restore.png");
             powerUpImages[1] = Image.FromFile(@"assets\double attack.png");
             powerUpImages[2] = Image.FromFile(@"assets\double point.png");
+
+            finalBoss = new PictureBox();
+            finalBoss.Size = new Size(120, 120);
+            finalBoss.SizeMode = PictureBoxSizeMode.Zoom;
+            finalBoss.BorderStyle = BorderStyle.None;
+            finalBoss.BackColor = Color.Transparent;
+            finalBoss.Image = deathStar;
+            finalBoss.Visible = false;
+            finalBoss.Location = new Point(this.Width / 2 - 60, -130);
+            this.Controls.Add(finalBoss);
+
+            bossHealthBar = new PictureBox();
+            bossHealthBar.Size = new Size(200, 15);
+            bossHealthBar.BackColor = Color.DarkRed;
+            bossHealthBar.Visible = false;
+            bossHealthBar.Location = new Point(this.Width / 2 - 100, 10);
+            this.Controls.Add(bossHealthBar);
+
+            bossHealthFill = new PictureBox();
+            bossHealthFill.Size = new Size(200, 15);
+            bossHealthFill.BackColor = Color.LimeGreen;
+            bossHealthFill.Visible = false;
+            bossHealthFill.Location = new Point(this.Width / 2 - 100, 10);
+            this.Controls.Add(bossHealthFill);
+
+            bossHealth = 100;
+            bossMaxHealth = 100;
+            bossActive = false;
+            bossMovingRight = true;
+            bossAttackCounter = 0;
 
             powerUpTypes = new string[] { "restore", "rapidfire", "doublepoint" };
             doublePoints = false;
@@ -428,6 +470,11 @@ namespace SPACESHOOTER_ORCA
 
         private void MoveEnemiesTimer_Tick(object sender, EventArgs e)
         {
+            if (bossActive)
+            {
+                MoveFinalBoss();
+                return;
+            }
             MoveEnemies(enemies, enemySpeed);
         }
 
@@ -472,7 +519,7 @@ namespace SPACESHOOTER_ORCA
                         }
 
                         if (level == 5)
-                            GameOver("CONGRATULATIONS!");
+                            ActivateFinalBoss();
                     }
                     enemies[i].Location = new Point((i + 1) * 50, -100);
                     SpawnPowerUp(enemies[i].Location.X, enemies[i].Location.Y);
@@ -516,6 +563,8 @@ namespace SPACESHOOTER_ORCA
         {
             for (int i = 0; i < obstacles.Length; i++)
             {
+                if (bossActive) return;
+
                 obstacles[i].Visible = true;
                 obstacles[i].Top += obstacleSpeed;
 
@@ -590,21 +639,25 @@ namespace SPACESHOOTER_ORCA
 
         private void EnemiesAttacksTimer_Tick(object sender, EventArgs e)
         {
-            for (int i = 0; i < (enemiesAttacks.Length - dificulty); i++)
+            for (int i = 0; i < enemiesAttacks.Length; i++)
             {
-                if (enemiesAttacks[i].Top < this.Height)
+                if (enemiesAttacks[i].Visible)
                 {
-                    enemiesAttacks[i].Visible = true;
                     enemiesAttacks[i].Top += enemiesAttacksSpeed;
-                    CollisionWithEnemiesAttacks();
+
+                    if (enemiesAttacks[i].Top > this.Height)
+                    {
+                        enemiesAttacks[i].Visible = false;
+                        enemiesAttacks[i].Location = new Point(-100, -100);
+                    }
                 }
-                else
+                else if (!bossActive)
                 {
-                    enemiesAttacks[i].Visible = false;
                     int x = rand.Next(0, 10);
                     enemiesAttacks[i].Location = new Point(enemies[x].Location.X + 20, enemies[x].Location.Y + 30);
                 }
             }
+            CollisionWithEnemiesAttacks();
         }
 
         private void CollisionWithEnemiesAttacks()
@@ -749,6 +802,106 @@ namespace SPACESHOOTER_ORCA
             doublePoints = false;
             attackSpeed = normalAttackSpeed;
             PowerUpTimer.Stop();
+        }
+
+        private void ActivateFinalBoss()
+        {
+            for (int i = 0; i < enemies.Length; i++)
+            {
+                enemies[i].Visible = false;
+                enemies[i].Location = new Point(-100, -100);
+            }
+            for (int i = 0; i < enemiesAttacks.Length; i++)
+            {
+                enemiesAttacks[i].Visible = false;
+                enemiesAttacks[i].Location = new Point(-100, -100);
+            }
+            for (int i = 0; i < obstacles.Length; i++)
+            {
+                obstacles[i].Visible = false;
+                obstacles[i].Location = new Point(-100, -100);
+            }
+            bossHealthFill.BringToFront();
+            bossHealthBar.BringToFront();
+
+            bossHealth = bossMaxHealth;
+            bossActive = true;
+            finalBoss.Visible = true;
+            bossHealthBar.Visible = true;
+            bossHealthFill.Visible = true;
+            finalBoss.Location = new Point(this.Width / 2 - 60, 30);
+        }
+        private void MoveFinalBoss()
+        {
+            if (!bossActive) return;
+
+            if (bossMovingRight)
+            {
+                finalBoss.Left += 2;
+                if (finalBoss.Right >= this.Width - 10) bossMovingRight = false;
+            }
+            else
+            {
+                finalBoss.Left -= 2;
+                if (finalBoss.Left <= 10) bossMovingRight = true;
+            }
+            int fillWidth = Math.Max(0, (int)((float)bossHealth / bossMaxHealth * 200));
+            bossHealthFill.Width = fillWidth;
+            bossHealthFill.BackColor = bossHealth > 40 ? Color.LimeGreen : Color.OrangeRed;
+            bossHealthBar.BringToFront();
+            bossHealthFill.BringToFront();
+
+            bossAttackCounter++;
+            if (bossAttackCounter % 20 == 0)
+            {
+                FireBossBullet();
+                if (bossAttackCounter >= 100) bossAttackCounter = 0;
+            }
+            for (int j = 0; j < attacks.Length; j++)
+            {
+                if (attacks[j].Bounds.IntersectsWith(finalBoss.Bounds) && attacks[j].Visible)
+                {
+                    explosion.controls.play();
+                    attacks[j].Visible = false;
+                    attacks[j].Location = new Point(Player.Location.X + 20, Player.Location.Y);
+                    bossHealth--;
+                    if (bossHealth % 20 == 0)
+                        SpawnPowerUp(finalBoss.Location.X + 50, finalBoss.Location.Y + 120);
+
+                    if (bossHealth <= 0)
+                    {
+                        bossActive = false;
+                        finalBoss.Visible = false;
+                        bossHealthBar.Visible = false;
+                        bossHealthFill.Visible = false;
+                        GameOver("CONGRATULATIONS!");
+                    }
+                }
+            }
+            if (finalBoss.Bounds.IntersectsWith(Player.Bounds))
+            {
+                explosion.settings.volume = 30;
+                explosion.controls.play();
+                LoseLife();
+            }
+        }
+        private void FireBossBullet()
+        {
+            int bulletsSpawned = 0;
+            int[] offsets = { 10, 50, 90 }; // 3 bullets spread across boss width
+
+            for (int i = 0; i < enemiesAttacks.Length && bulletsSpawned < 3; i++)
+            {
+                if (!enemiesAttacks[i].Visible)
+                {
+                    enemiesAttacks[i].Location = new Point(
+                        finalBoss.Location.X + offsets[bulletsSpawned],
+                        finalBoss.Location.Y + 120);
+                    enemiesAttacks[i].Tag = "boss";
+                    enemiesAttacks[i].Visible = true;
+                    bulletsSpawned++;
+                }
+            }
         }
     }
 }
