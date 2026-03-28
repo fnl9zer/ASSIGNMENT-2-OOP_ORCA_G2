@@ -29,7 +29,7 @@ namespace SPACESHOOTER_ORCA
             Console.WriteLine("Basic Enemy — Damage: " + basicEnemy.Damage + "  | Type: " + basicEnemy.Type);
             Console.WriteLine("Boss Enemy  — Damage: " + bossEnemy.Damage + " | Is Boss: " + bossEnemy.IsBoss());
 
-            // Creating obstacle objects
+            // Create obstacle objects
             Obstacle meteor = new Obstacle("basic", 3);
             Obstacle flamingMeteor = new Obstacle("flaming", 3);
             Console.WriteLine("\nObstacles created!");

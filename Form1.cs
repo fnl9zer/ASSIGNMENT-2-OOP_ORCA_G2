@@ -995,7 +995,7 @@ namespace SPACESHOOTER_ORCA
         }
 
         // i dunno...
-        private void PictureBox1_Click(object sender, EventArgs e)
+        private void pictureBox1_Click(object sender, EventArgs e)
         {
             
         }
