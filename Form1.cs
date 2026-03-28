@@ -135,13 +135,6 @@ namespace SPACESHOOTER_ORCA
 
         private void LoadImages()
         {
-            bgImages = new Image[5];
-            bgImages[0] = Image.FromFile(@"assets\L1.png");
-            bgImages[1] = Image.FromFile(@"assets\L2.png");
-            bgImages[2] = Image.FromFile(@"assets\L3.png");
-            bgImages[3] = Image.FromFile(@"assets\L4.png");
-            bgImages[4] = Image.FromFile(@"assets\L5.png");
-
             powerUpImages = new Image[3];
             powerUpImages[0] = Image.FromFile(@"assets\restore.png");
             powerUpImages[1] = Image.FromFile(@"assets\double attack.png");
