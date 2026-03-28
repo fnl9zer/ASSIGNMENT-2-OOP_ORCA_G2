@@ -46,6 +46,7 @@
             this.levellbl = new System.Windows.Forms.Label();
             this.MoveObstaclesTimer = new System.Windows.Forms.Timer(this.components);
             this.InvincibleTimer = new System.Windows.Forms.Timer(this.components);
+            this.PowerUpTimer = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.Player)).BeginInit();
             this.SuspendLayout();
             // 
@@ -172,6 +173,11 @@
             this.InvincibleTimer.Interval = 1000;
             this.InvincibleTimer.Tick += new System.EventHandler(this.InvincibleTimer_Tick);
             // 
+            // PowerUpTimer
+            // 
+            this.PowerUpTimer.Interval = 5000;
+            this.PowerUpTimer.Tick += new System.EventHandler(this.PowerUpTimer_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
@@ -218,6 +224,7 @@
         private System.Windows.Forms.Label levellbl;
         private System.Windows.Forms.Timer MoveObstaclesTimer;
         private System.Windows.Forms.Timer InvincibleTimer;
+        private System.Windows.Forms.Timer PowerUpTimer;
     }
 }
 

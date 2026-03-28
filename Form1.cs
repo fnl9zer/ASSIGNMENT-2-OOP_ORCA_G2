@@ -55,6 +55,14 @@ namespace SPACESHOOTER_ORCA
         bool isInvincible;
         int invincibleTimer;
 
+        //power ups
+        PictureBox[] powerUps;
+        Image[] powerUpImages;
+        string[] powerUpTypes;
+        bool doublePoints;
+        bool rapidFire;
+        int normalAttackSpeed;
+
         public Form1()
         {
             InitializeComponent();
@@ -113,6 +121,31 @@ namespace SPACESHOOTER_ORCA
             Image enemy3 = Image.FromFile("assets\\E3.png");
             Image boss1 = Image.FromFile("assets\\TIE fighter.png");
             Image boss2 = Image.FromFile("assets\\TIE fighter 2.png");
+
+            powerUpImages = new Image[3];
+            powerUpImages[0] = Image.FromFile(@"assets\restore.png");
+            powerUpImages[1] = Image.FromFile(@"assets\double attack.png");
+            powerUpImages[2] = Image.FromFile(@"assets\double point.png");
+
+            powerUpTypes = new string[] { "restore", "rapidfire", "doublepoint" };
+            doublePoints = false;
+            rapidFire = false;
+            normalAttackSpeed = attackSpeed;
+
+            powerUps = new PictureBox[3];
+            for (int i = 0; i < powerUps.Length; i++)
+            {
+                powerUps[i] = new PictureBox();
+                powerUps[i].Size = new Size(25, 25);
+                powerUps[i].SizeMode = PictureBoxSizeMode.Zoom;
+                powerUps[i].BorderStyle = BorderStyle.None;
+                powerUps[i].BackColor = Color.Transparent;
+                powerUps[i].Visible = false;
+                powerUps[i].Image = powerUpImages[i];
+                powerUps[i].Tag = powerUpTypes[i];
+                powerUps[i].Location = new Point(-50, -50);
+                this.Controls.Add(powerUps[i]);
+            }
 
             enemies = new PictureBox[10];
 
@@ -176,12 +209,12 @@ namespace SPACESHOOTER_ORCA
             for (int i = 0; i < hearts.Length; i++)
             {
                 hearts[i] = new PictureBox();
-                hearts[i].Size = new Size(30, 30);
+                hearts[i].Size = new Size(45, 45);
                 hearts[i].SizeMode = PictureBoxSizeMode.Zoom;
                 hearts[i].BackColor = Color.Transparent;
                 hearts[i].BorderStyle = BorderStyle.None;
                 hearts[i].Image = heartImg;
-                hearts[i].Location = new Point(this.Width - 110 + i * 35, this.Height - 60);
+                hearts[i].Location = new Point(this.Width - 130 + i * 35, this.Height - 85);
                 hearts[i].Visible = true;
                 this.Controls.Add(hearts[i]);
             }
@@ -295,6 +328,7 @@ namespace SPACESHOOTER_ORCA
                 if (stars[i].Top >= this.Height)
                     stars[i].Top = -stars[i].Height;
             }
+            CollectPowerUp();
         }
 
         private void Right_Timer_Tick(object sender, EventArgs e)
@@ -419,7 +453,7 @@ namespace SPACESHOOTER_ORCA
                 {
                     explosion.controls.play();
 
-                    score += 1;
+                    score += doublePoints ? 2 : 1;
                     scorelbl.Text = "Score: " + (score < 10 ? "0" + score.ToString() : score.ToString());
 
                     // score threshold increases each level
@@ -441,6 +475,7 @@ namespace SPACESHOOTER_ORCA
                             GameOver("CONGRATULATIONS!");
                     }
                     enemies[i].Location = new Point((i + 1) * 50, -100);
+                    SpawnPowerUp(enemies[i].Location.X, enemies[i].Location.Y);
                 }
 
                 // direct enemy collision = instant lose life
@@ -540,6 +575,7 @@ namespace SPACESHOOTER_ORCA
             MoveAttackTimer.Stop();
             EnemiesAttackTimer.Stop();
             MoveObstaclesTimer.Stop();
+            PowerUpTimer.Stop();
         }
 
         private void StartTimer()
@@ -549,6 +585,7 @@ namespace SPACESHOOTER_ORCA
             MoveAttackTimer.Start();
             EnemiesAttackTimer.Start();
             MoveObstaclesTimer.Start();
+            PowerUpTimer.Start();
         }
 
         private void EnemiesAttacksTimer_Tick(object sender, EventArgs e)
@@ -641,6 +678,77 @@ namespace SPACESHOOTER_ORCA
         {
             isInvincible = false;
             InvincibleTimer.Stop();
+        }
+        private void SpawnPowerUp(int x, int y)
+        {
+            // 30% chance to spawn a powerup
+            if (rand.Next(0, 100) > 30) return;
+
+            // pick random powerup
+            int type = rand.Next(0, 3);
+
+            // restore only spawns if player has lost a life
+            if (type == 0 && playerLives == 3) return;
+
+            powerUps[type].Location = new Point(x, y);
+            powerUps[type].Visible = true;
+        }
+
+        private void CollectPowerUp()
+        {
+            for (int i = 0; i < powerUps.Length; i++)
+            {
+                if (!powerUps[i].Visible) continue;
+
+                // move powerup down
+                powerUps[i].Top += 2;
+
+                // disappears off screen
+                if (powerUps[i].Top > this.Height)
+                {
+                    powerUps[i].Visible = false;
+                    powerUps[i].Location = new Point(-50, -50);
+                }
+
+                // player collects it
+                if (powerUps[i].Bounds.IntersectsWith(Player.Bounds))
+                {
+                    powerUps[i].Visible = false;
+                    powerUps[i].Location = new Point(-50, -50);
+
+                    string type = powerUps[i].Tag.ToString();
+
+                    if (type == "restore")
+                    {
+                        // restore 1 heart
+                        playerLives += 1;
+                        if (playerLives == 2) hearts[2].Visible = true;
+                        else if (playerLives == 3) { hearts[1].Visible = true; hearts[2].Visible = true; }
+                    }
+                    else if (type == "rapidfire")
+                    {
+                        // double attack speed for 5 seconds
+                        rapidFire = true;
+                        attackSpeed = normalAttackSpeed * 2;
+                        PowerUpTimer.Start();
+                    }
+                    else if (type == "doublepoint")
+                    {
+                        // double points for 5 seconds
+                        doublePoints = true;
+                        PowerUpTimer.Start();
+                    }
+                }
+            }
+        }
+
+        private void PowerUpTimer_Tick(object sender, EventArgs e)
+        {
+            // reset powerup effects after 5 seconds
+            rapidFire = false;
+            doublePoints = false;
+            attackSpeed = normalAttackSpeed;
+            PowerUpTimer.Stop();
         }
     }
 }
