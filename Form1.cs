@@ -448,7 +448,7 @@ namespace SPACESHOOTER_ORCA
             if (Player.Top < 400) Player.Top += playerSpeed;
         }
 
-        // Game State Management
+        // Game system
         private void PauseGame()
         {
             lbl1.Location = new Point(this.Width / 2 - 120, 150);
