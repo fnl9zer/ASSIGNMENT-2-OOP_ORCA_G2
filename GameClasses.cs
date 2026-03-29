@@ -69,7 +69,7 @@ namespace SPACESHOOTER_ORCA
         }
     }
 
-    // Enemy class
+    // Enemy base class
     public class Enemy
     {
         // Encapsulation: Private fields
@@ -93,7 +93,7 @@ namespace SPACESHOOTER_ORCA
         }
 
         // Polymorphism: Different enemies can have different attack behaviors
-        public void Attack(Player player)
+        public virtual void Attack(Player player)
         {
             player.TakeDamage(damage);
         }
@@ -103,9 +103,58 @@ namespace SPACESHOOTER_ORCA
             return type == "boss";
         }
 
-        public void IncreaseSpeed(int amount)
+        public virtual void IncreaseSpeed(int amount)
         {
             speed += amount;
+        }
+    }
+
+    // BasicEnemy - Inheritance from Enemy
+    public class BasicEnemy : Enemy
+    {
+        public BasicEnemy() : base(10, 4, "basic", 1) { }
+    }
+
+    // HardEnemy - Inheritance from Enemy
+    public class HardEnemy : Enemy
+    {
+        public HardEnemy() : base(20, 5, "hard", 3) { }
+    }
+
+    // BossEnemy - Inheritance from Enemy with additional features
+    public class BossEnemy : Enemy
+    {
+        private int phase;
+        private bool enraged;
+
+        public int Phase { get { return phase; } set { phase = value; } }
+        public bool Enraged { get { return enraged; } set { enraged = value; } }
+
+        public BossEnemy() : base(100, 6, "boss", 10)
+        {
+            phase = 1;
+            enraged = false;
+        }
+
+        public void NextPhase()
+        {
+            phase = 2;
+            enraged = true;
+            Speed = 8;
+            Damage = 150;
+        }
+
+        // Polymorphism: Override attack for boss behavior
+        public override void Attack(Player player)
+        {
+            int bonusDamage = enraged ? 50 : 0;
+            player.TakeDamage(Damage + bonusDamage);
+        }
+
+        // Polymorphism: Override speed increase for boss
+        public override void IncreaseSpeed(int amount)
+        {
+            Speed += amount * 2;
         }
     }
 
@@ -132,7 +181,7 @@ namespace SPACESHOOTER_ORCA
             this.speed = speed;
             this.collisionDamage = (type == "flaming") ? 60 : 30;
         }
-        
+
         public void Collide(Player player)
         {
             player.TakeDamage(collisionDamage);
@@ -146,6 +195,66 @@ namespace SPACESHOOTER_ORCA
         public void Move()
         {
             positionY += speed;
+        }
+    }
+
+    // PowerUp class
+    public class PowerUp
+    {
+        private string type;
+        private int value;
+        private float duration;
+        private bool isPermanent;
+
+        public string Type { get { return type; } }
+        public int Value { get { return value; } }
+        public float Duration { get { return duration; } }
+        public bool IsPermanent { get { return isPermanent; } }
+
+        public PowerUp(string type, int value, float duration, bool isPermanent)
+        {
+            this.type = type;
+            this.value = value;
+            this.duration = duration;
+            this.isPermanent = isPermanent;
+        }
+
+        public void ApplyTo(Player player)
+        {
+            if (type == "restore")
+                player.Lives += value;
+        }
+
+        public void RemoveFrom(Player player)
+        {
+            // Remove temporary effects (handled by Form1 timers)
+        }
+    }
+
+    // Level class
+    public class Level
+    {
+        private int levelNumber;
+        private int requiredScore;
+        private string difficulty;
+
+        public int LevelNumber { get { return levelNumber; } set { levelNumber = value; } }
+        public int RequiredScore { get { return requiredScore; } set { requiredScore = value; } }
+        public string Difficulty { get { return difficulty; } set { difficulty = value; } }
+
+        public Level(int levelNumber, int requiredScore, string difficulty)
+        {
+            this.levelNumber = levelNumber;
+            this.requiredScore = requiredScore;
+            this.difficulty = difficulty;
+        }
+
+        public void IncreaseDifficulty()
+        {
+            if (difficulty == "easy")
+                difficulty = "medium";
+            else if (difficulty == "medium")
+                difficulty = "hard";
         }
     }
 }

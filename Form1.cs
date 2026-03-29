@@ -12,6 +12,14 @@ namespace SPACESHOOTER_ORCA
         private readonly WindowsMediaPlayer shootMedia;
         private readonly WindowsMediaPlayer explosion;
 
+        // OOP class instances
+        private Player gamePlayer;
+        private Enemy[] gameEnemies;
+        private Obstacle[] gameObstacles;
+        private PowerUp[] gamePowerUps;
+        private Level currentLevelObj;
+        private BossEnemy finalBossEnemy;
+
         // Player
         private int playerSpeed;
         private int playerHealth;
@@ -58,7 +66,6 @@ namespace SPACESHOOTER_ORCA
         // Effects
         private PictureBox[] stars;
         private int backgroundSpeed;
-        private Image[] bgImages;
 
         // Game State
         private int score;
@@ -131,6 +138,34 @@ namespace SPACESHOOTER_ORCA
 
             scorelbl.Text = "Score: 00";
             levellbl.Text = "Level: 1";
+
+            // instantiate OOP classes
+            gamePlayer = new Player(100, 100, 3, 4);
+
+            gameEnemies = new Enemy[10];
+            for (int i = 0; i < gameEnemies.Length; i++)
+            {
+                if (i == 0 || i == 9)
+                    gameEnemies[i] = new BossEnemy();
+                else if (i % 3 == 0)
+                    gameEnemies[i] = new HardEnemy();
+                else
+                    gameEnemies[i] = new BasicEnemy();
+            }
+
+            gameObstacles = new Obstacle[6];
+            for (int i = 0; i < gameObstacles.Length; i++)
+                gameObstacles[i] = new Obstacle(i % 2 == 0 ? "basic" : "flaming", obstacleSpeed);
+
+            gamePowerUps = new PowerUp[]
+            {
+                new PowerUp("restore", 1, 0, true),
+                new PowerUp("rapidfire", 2, 5, false),
+                new PowerUp("doublepoint", 2, 5, false)
+            };
+
+            currentLevelObj = new Level(1, 10, "easy");
+            finalBossEnemy = new BossEnemy();
         }
 
         private void LoadImages()
@@ -474,10 +509,11 @@ namespace SPACESHOOTER_ORCA
         {
             if (isInvincible) return;
 
-            playerLives -= 1;
+            gamePlayer.LoseLife();
+            playerLives = gamePlayer.Lives;
             UpdateHearts();
 
-            if (playerLives <= 0)
+            if (gamePlayer.IsDestroyed())
             {
                 Player.Visible = false;
                 GameOver("Game Over");
@@ -603,7 +639,8 @@ namespace SPACESHOOTER_ORCA
         {
             explosion.controls.play();
 
-            score += doublePoints ? 2 : 1;
+            gamePlayer.AddScore(doublePoints ? 2 : 1);
+            score = gamePlayer.Score;
             scorelbl.Text = "Score: " + (score < 10 ? "0" + score.ToString() : score.ToString());
 
             CheckLevelProgression();
@@ -661,12 +698,17 @@ namespace SPACESHOOTER_ORCA
 
         private void CheckLevelProgression()
         {
-            int[] levelThresholds = { 20, 45, 75, 110 };
-
+            int[] levelThresholds = { 30, 70, 120, 180 };
             if (level <= 4 && score >= levelThresholds[level - 1])
             {
                 level += 1;
+                currentLevelObj.LevelNumber = level;
+                currentLevelObj.IncreaseDifficulty();
                 levellbl.Text = "Level: " + level.ToString();
+
+                // polymorphism — increase speed on all enemy types
+                foreach (Enemy enemy in gameEnemies)
+                    enemy.IncreaseSpeed(1);
 
                 if (enemySpeed <= 10 && enemiesAttacksSpeed <= 10 && difficulty >= 0)
                 {
@@ -819,10 +861,12 @@ namespace SPACESHOOTER_ORCA
                     powerUps[i].Location = new Point(-50, -50);
 
                     string type = powerUps[i].Tag.ToString();
+                    gamePowerUps[i].ApplyTo(gamePlayer); // use PowerUp class
+                    playerLives = gamePlayer.Lives;
 
                     if (type == "restore")
                     {
-                        playerLives += 1;
+                        playerLives = gamePlayer.Lives;
                         if (playerLives == 2) hearts[2].Visible = true;
                         else if (playerLives == 3) { hearts[1].Visible = true; hearts[2].Visible = true; }
                     }
@@ -846,6 +890,11 @@ namespace SPACESHOOTER_ORCA
             rapidFire = false;
             doublePoints = false;
             attackSpeed = normalAttackSpeed;
+
+            // remove powerup effect from player
+            foreach (PowerUp p in gamePowerUps)
+                p.RemoveFrom(gamePlayer);
+
             PowerUpTimer.Stop();
         }
 
@@ -877,6 +926,9 @@ namespace SPACESHOOTER_ORCA
             bossHealthBar.Visible = true;
             bossHealthFill.Visible = true;
             finalBoss.Location = new Point(this.Width / 2 - 60, 30);
+
+            finalBossEnemy.Phase = 1;
+            finalBossEnemy.Enraged = false;
         }
 
         private void MoveFinalBoss()
@@ -951,6 +1003,10 @@ namespace SPACESHOOTER_ORCA
                     attacks[j].Visible = false;
                     attacks[j].Location = new Point(Player.Location.X + 20, Player.Location.Y);
                     bossHealth--;
+
+                    // boss enters phase 2 at half health — polymorphism
+                    if (bossHealth == bossMaxHealth / 2)
+                        finalBossEnemy.NextPhase();
 
                     if (bossHealth % 20 == 0)
                         SpawnPowerUp(finalBoss.Location.X + 50, finalBoss.Location.Y + 120);
