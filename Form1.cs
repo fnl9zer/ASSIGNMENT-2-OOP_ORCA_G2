@@ -144,7 +144,7 @@ namespace SPACESHOOTER_ORCA
         private void InitializeMedia()
         {
             gameMedia.URL = "songs\\GameSong.mp3";
-            shootMedia.URL = "songs\\shoot.mp3";
+            shootMedia.URL = "songs\\shoot.wav";
             explosion.URL = "songs\\boom.mp3";
 
             gameMedia.settings.setMode("loop", true);

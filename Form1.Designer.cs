@@ -110,10 +110,11 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lbl1.AutoSize = true;
+            this.lbl1.Font = new System.Drawing.Font("Retrobit", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbl1.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.lbl1.Location = new System.Drawing.Point(252, 189);
             this.lbl1.Name = "lbl1";
-            this.lbl1.Size = new System.Drawing.Size(63, 19);
+            this.lbl1.Size = new System.Drawing.Size(61, 16);
             this.lbl1.TabIndex = 2;
             this.lbl1.Text = "LABEL 1";
             this.lbl1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
